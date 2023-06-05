@@ -4,7 +4,7 @@ const ERROR_CODE = 400;
 const getCards = (req, res) => {
   Card.find({})
     .then((cards) => res.status(200).send(cards))
-    .catch((err) => res.status(500).send({
+    .catch((err) => res.status(400).send({
       message: 'Internal server error',
       err: err.message,
       stack: err.stack,
@@ -18,7 +18,7 @@ const createCard = (req, res) => {
 
   Card.create({ name, link, owner })
     .then((card) => res.status(200).send(card))
-    .catch((err) => res.status(500).send({
+    .catch((err) => res.status(400).send({
       message: 'Internal server error',
       err: err.message,
       stack: err.stack,
@@ -31,7 +31,7 @@ const deleteCardById = (req, res) => {
       card,
       message: "Card delete by id",
     }))
-    .catch((err) => res.status(500).send({
+    .catch((err) => res.status(400).send({
       message: 'Internal server error',
       err: err.message,
       stack: err.stack,
@@ -43,7 +43,7 @@ const likeCard = (req, res) => {
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true },)
     .then((updatedCard) => res.status(200).send(updatedCard))
-    .catch((err) => res.status(500).send({
+    .catch((err) => res.status(400).send({
       message: 'Internal server error',
       err: err.message,
       stack: err.stack,
@@ -55,7 +55,7 @@ const deleteLike = (req, res) => {
     { $pull: { likes: req.user._id } }, // убрать _id из массива
     { new: true },)
     .then((updatedCard) => res.status(200).send(updatedCard))
-    .catch((err) => res.status(500).send({
+    .catch((err) => res.status(400).send({
       message: 'Internal server error',
       err: err.message,
       stack: err.stack,
