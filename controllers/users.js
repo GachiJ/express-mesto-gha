@@ -35,7 +35,7 @@ const getUsersById = (req, res) => {
 const createUser = (req, res) => {
   const { name, about } = req.body;
 
-  if (name.length < 2 || name.length > 30 || about.length < 2 || about.length > 30 || !name || !about) {
+  if (!name || !about || name.length < 2 || name.length > 30 || about.length < 2 || about.length > 30) {
     return res.status(400).send({
       message: 'Invalid data for creating a user',
       error: 'Name and about should be between 2 and 30 characters long',
