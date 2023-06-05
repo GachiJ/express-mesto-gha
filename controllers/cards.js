@@ -39,6 +39,12 @@ const deleteCardById = (req, res) => {
 };
 
 const likeCard = (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(400).send({
+      message: 'Invalid card ID',
+    });
+  }
+
   Card.findByIdAndUpdate(req.params.id,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true })
@@ -54,7 +60,7 @@ const deleteLike = (req, res) => {
   Card.findByIdAndUpdate(req.params.id,
     { $pull: { likes: req.user._id } }, // убрать _id из массива
     { new: true },)
-    .then((updatedCard) => res.status(200).send(updatedCard))
+    .then((updatedCard) => res.status(200).send({data: updatedCard}))
     .catch((err) => res.status(400).send({
       message: 'Internal server error',
       err: err.message,
