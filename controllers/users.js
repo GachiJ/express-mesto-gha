@@ -15,7 +15,7 @@ const getUsersById = (req, res) => {
   User.findById(req.params.id)
     .then((user) => {
       if (!user) {
-        const ERROR_CODE = 404;
+        const ERROR_CODE = 400;
         return res.status(ERROR_CODE).send({
           message: 'User not found',
         });
@@ -33,6 +33,15 @@ const getUsersById = (req, res) => {
 };
 
 const createUser = (req, res) => {
+  const { name, about } = req.body;
+
+  if (name.length < 2 || name.length > 30 || about.length < 2 || about.length > 30) {
+    return res.status(400).send({
+      message: 'Invalid data for creating a user',
+      error: 'Name and about should be between 2 and 30 characters long',
+    });
+  }
+
   User.create(req.body)
     .then((user) => res.status(200).send(user))
     .catch((err) => {
