@@ -41,8 +41,8 @@ const deleteCardById = (req, res) => {
 const likeCard = (req, res) => {
   Card.findByIdAndUpdate(req.params.id,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
-    { new: true },)
-    .then((updatedCard) => res.status(200).send(updatedCard))
+    { new: true })
+    .then((updatedCard) => res.status(200).send({data: updatedCard}))
     .catch((err) => res.status(400).send({
       message: 'Internal server error',
       err: err.message,
