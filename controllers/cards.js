@@ -1,4 +1,5 @@
 const Card = require('../models/card');
+const ERROR_CODE = 400;
 
 const getCards = (req, res) => {
   Card.find({})
@@ -41,6 +42,7 @@ const likeCard = (req, res) => {
   Card.findByIdAndUpdate(req.params.id,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true },)
+    .then((updatedCard) => res.status(200).send(updatedCard))
     .catch((err) => res.status(500).send({
       message: 'Internal server error',
       err: err.message,
@@ -49,9 +51,10 @@ const likeCard = (req, res) => {
 };
 
 const deleteLike = (req, res) => {
-  Card.findByIdAndUpdate(req.params.cardId,
+  Card.findByIdAndUpdate(req.params.id,
     { $pull: { likes: req.user._id } }, // убрать _id из массива
     { new: true },)
+    .then((updatedCard) => res.status(200).send(updatedCard))
     .catch((err) => res.status(500).send({
       message: 'Internal server error',
       err: err.message,
