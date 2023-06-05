@@ -32,7 +32,7 @@ const deleteCardById = (req, res) => {
       card,
       message: "Card delete by id",
     }))
-    .catch((err) => res.status(400).send({
+    .catch((err) => res.status(404).send({
       message: 'Internal server error',
       err: err.message,
       stack: err.stack,
@@ -41,7 +41,7 @@ const deleteCardById = (req, res) => {
 
 const likeCard = (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.cardId)) {
-    return res.status(404).send({
+    return res.send({
       message: 'Invalid card ID',
     });
   }
@@ -59,7 +59,7 @@ const likeCard = (req, res) => {
 
 const deleteLike = (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.cardId)) {
-    return res.status(404).send({
+    return res.send({
       message: 'Invalid card ID',
     });
   }
