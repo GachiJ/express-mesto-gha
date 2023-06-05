@@ -40,16 +40,16 @@ const deleteCardById = (req, res) => {
 };
 
 const likeCard = (req, res) => {
-  if (!mongoose.Types.ObjectId.isValid(req.params)) {
+  if (!mongoose.Types.ObjectId.isValid(req.params.cardId)) {
     return res.status(404).send({
       message: 'Invalid card ID',
     });
   }
 
-  Card.findByIdAndUpdate(req.params,
+  Card.findByIdAndUpdate(req.params.cardId,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true })
-    .then((updatedCard) => res.status(200).send({data: updatedCard}))
+    .then((card) => res.status(200).send({ data: card }))
     .catch((err) => res.status(400).send({
       message: 'Internal server error',
       err: err.message,
@@ -58,16 +58,16 @@ const likeCard = (req, res) => {
 };
 
 const deleteLike = (req, res) => {
-  if (!mongoose.Types.ObjectId.isValid(req.params)) {
+  if (!mongoose.Types.ObjectId.isValid(req.params.cardId)) {
     return res.status(404).send({
       message: 'Invalid card ID',
     });
   }
 
-  Card.findByIdAndUpdate(req.params,
+  Card.findByIdAndUpdate(req.params.cardId,
     { $pull: { likes: req.user._id } }, // убрать _id из массива
     { new: true },)
-    .then((updatedCard) => res.status(200).send({data: updatedCard}))
+    .then((card) => res.status(200).send({ data: card }))
     .catch((err) => res.status(400).send({
       message: 'Internal server error',
       err: err.message,
