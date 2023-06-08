@@ -15,15 +15,20 @@ const getCards = (req, res) => {
 const createCard = (req, res) => {
   const { name, link } = req.body;
   const owner = req.user._id;
-  console.log(owner)
 
   Card.create({ name, link, owner })
     .then((card) => res.status(200).send(card))
-    .catch((err) => res.status(400).send({
-      message: 'Internal server error',
-      err: err.message,
-      stack: err.stack,
-    }));
+    .catch((err) => {
+      if (err.name == 'ValidationError') {
+        res.status(400).send(err);
+      } else if (err) {
+        res.status(500).send({
+          message: 'Internal server error',
+          err: err.message,
+          stack: err.stack,
+        });
+      }
+    });
 };
 
 const deleteCardById = (req, res) => {

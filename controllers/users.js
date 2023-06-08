@@ -45,12 +45,15 @@ const createUser = (req, res) => {
   User.create(req.body)
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      const ERROR_CODE = 400;
-      res.status(ERROR_CODE).send({
-        message: 'Invalid data for creating a user',
-        err: err.message,
-        stack: err.stack,
-      });
+      if (err.name == 'ValidationError') {
+        res.status(400).send(err);
+      } else if (err) {
+        res.status(400).send({
+          message: 'Invalid data for creating a user',
+          err: err.message,
+          stack: err.stack,
+        });
+      }
     });
 };
 
