@@ -72,7 +72,7 @@ const likeCard = (req, res) => {
 
 const deleteLike = (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.cardId)) {
-    return res.status(404).send({
+    return res.status(400).send({
       message: 'Invalid card ID',
     });
   }
@@ -80,7 +80,14 @@ const deleteLike = (req, res) => {
   Card.findByIdAndUpdate(req.params.cardId,
     { $pull: { likes: req.user._id } }, // убрать _id из массива
     { new: true },)
-    .then((card) => res.status(200).send({ data: card }))
+    .then((card) => {
+      if (!card) {
+        return res.status(404).send({
+          message: 'Card Not Found',
+        });
+      }
+      res.status(200).send({ data: card });
+    })
     .catch((err) => res.status(400).send({
       message: 'Internal server error',
       err: err.message,
