@@ -64,21 +64,25 @@ const likeCard = (req, res) => {
 };
 
 const deleteLike = (req, res) => {
-  if (!mongoose.Types.ObjectId.isValid(req.params.cardId)) {
-    return res.status(404).send({
-      message: 'Invalid card ID',
-    });
-  }
+
 
   Card.findByIdAndUpdate(req.params.cardId,
     { $pull: { likes: req.user._id } }, // убрать _id из массива
     { new: true },)
     .then((card) => res.status(200).send({ data: card }))
-    .catch((err) => res.status(400).send({
-      message: 'Internal server error',
-      err: err.message,
-      stack: err.stack,
-    }));
+    .catch((err) => {
+      if (!mongoose.Types.ObjectId.isValid(req.params.cardId)) {
+        return res.status(404).send({
+          message: 'Invalid card ID',
+        });
+      }
+      return res.status(400).send({
+        message: 'Internal server error',
+        err: err.message,
+        stack: err.stack,
+
+      });
+    });
 };
 
 module.exports = {
