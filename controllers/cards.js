@@ -76,7 +76,7 @@ const likeCard = (req, res) => {
 
 const deleteLike = (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.cardId)) {
-    return res.status(404).send({
+    return res.status(400).send({
       message: 'Invalid card ID',
     });
   }
