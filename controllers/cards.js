@@ -27,17 +27,21 @@ const createCard = (req, res) => {
 };
 
 const deleteCardById = (req, res) => {
-  if (!mongoose.Types.ObjectId.isValid(req.params.cardId)) {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
     return res.status(400).send({
       message: 'Invalid card ID',
     });
   }
 
   Card.findByIdAndDelete(req.params.id)
-    .then((card) => res.status(200).send({
-      card,
-      message: "Card delete by id",
-    }))
+    .then((card) => {
+      if (!card) {
+        return res.status(404).send({
+          message: 'Card Not Found',
+        });
+      }
+      res.status(200).send({ data: card })
+    })
     .catch((err) => res.status(400).send({
       message: 'Internal server error',
       err: err.message,
@@ -72,7 +76,7 @@ const likeCard = (req, res) => {
 
 const deleteLike = (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.cardId)) {
-    return res.status(400).send({
+    return res.status(404).send({
       message: 'Invalid card ID',
     });
   }
@@ -86,7 +90,7 @@ const deleteLike = (req, res) => {
           message: 'Card Not Found',
         });
       }
-      res.status(200).send({ data: card });
+      res.status(200).send({ data: card })
     })
     .catch((err) => res.status(400).send({
       message: 'Internal server error',
