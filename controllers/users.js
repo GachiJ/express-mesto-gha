@@ -68,19 +68,17 @@ const upDateUser = (req, res) => {
     });
   }
 
-  User.findByIdAndUpdate(req.user._id, req.body,  {new: true, runValidators: true })
+  User.findByIdAndUpdate(req.user._id, req.body, { new: true, runValidators: true })
+    .orFail(new Error('User not found'))
     .then((userInfo) => {
-      if (!userInfo) {
-        const ERROR_CODE = 400;
-        return res.status(ERROR_CODE).send({
-          message: 'User not found',
-        });
-      }
       res.status(200).send(userInfo);
     })
     .catch((err) => {
-      const ERROR_CODE = 400;
-      res.status(ERROR_CODE).send({
+      if (err.message == 'User not found') {
+        res.status(400).send({ message: 'User not foubd'})
+        return;
+      }
+      res.status(400).send({
         message: 'Internal server error',
         err: err.message,
         stack: err.stack,
@@ -89,7 +87,7 @@ const upDateUser = (req, res) => {
 };
 
 const upDateUserAvatar = (req, res) => {
-  User.findByIdAndUpdate(req.user._id, req.body, {new: true, runValidators: true })
+  User.findByIdAndUpdate(req.user._id, req.body, { new: true, runValidators: true })
     .then((userInfo) => {
       if (!userInfo) {
         const ERROR_CODE = 404;
