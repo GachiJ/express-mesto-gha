@@ -45,7 +45,7 @@ const deleteCardById = (req, res) => {
     })
     .catch((err) => {
       if (err.message == 'Card not found') {
-        res.status(400).send({ message: 'Card not found' })
+        res.status(404).send({ message: 'Card not found' })
         return;
       }
       res.status(400).send({
@@ -72,7 +72,7 @@ const likeCard = (req, res) => {
     })
     .catch((err) => {
       if (err.message == 'Card not found') {
-        res.status(400).send({ message: 'Card not found' })
+        res.status(404).send({ message: 'Card not found' })
         return;
       }
       res.status(400).send({
@@ -99,7 +99,7 @@ const deleteLike = (req, res) => {
     })
     .catch((err) => {
       if (err.message == 'Card not found') {
-        res.status(400).send({ message: 'Card not found' })
+        res.status(404).send({ message: 'Card not found' })
         return;
       }
       res.status(400).send({
