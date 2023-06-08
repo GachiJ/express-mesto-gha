@@ -5,7 +5,7 @@ const cardRoutes = require('./cards');
 router.use(userRoutes);
 router.use(cardRoutes);
 router.use((req, res) => {
-  res.status(400).send({
+  res.status(404).send({
     message: 'Invalid path',
   });
 });

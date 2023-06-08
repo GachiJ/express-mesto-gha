@@ -68,7 +68,7 @@ const upDateUser = (req, res) => {
     });
   }
 
-  User.findByIdAndUpdate(req.user._id, req.body, { new: true })
+  User.findByIdAndUpdate(req.user._id, req.body,  { runValidators: true })
     .then((userInfo) => {
       if (!userInfo) {
         const ERROR_CODE = 400;
@@ -89,7 +89,7 @@ const upDateUser = (req, res) => {
 };
 
 const upDateUserAvatar = (req, res) => {
-  User.findByIdAndUpdate(req.user._id, req.body, { new: true })
+  User.findByIdAndUpdate(req.user._id, req.body,  { runValidators: true })
     .then((userInfo) => {
       if (!userInfo) {
         const ERROR_CODE = 404;
