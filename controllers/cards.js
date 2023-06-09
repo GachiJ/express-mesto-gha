@@ -45,14 +45,16 @@ const deleteCardById = (req, res) => {
     })
     .catch((err) => {
       if (err.message == 'Card not found') {
-        res.status(404).send({ message: 'Card not found' })
-        return;
+        res.status(404).send({ message: 'Card not found' });
+      } else if (err.name = 'CastError') {
+        res.status(400).send({ message: 'incorrect data' });
+      } else {
+        res.status(500).send({
+          message: 'Internal server error',
+          err: err.message,
+          stack: err.stack,
+        });
       }
-      res.status(400).send({
-        message: 'Internal server error',
-        err: err.message,
-        stack: err.stack,
-      });
     });
 };
 
@@ -72,14 +74,16 @@ const likeCard = (req, res) => {
     })
     .catch((err) => {
       if (err.message == 'Card not found') {
-        res.status(404).send({ message: 'Card not found' })
-        return;
+        res.status(404).send({ message: 'Card not found' });
+      } else if (err.name = 'CastError') {
+        res.status(400).send({ message: 'incorrect data' });
+      } else {
+        res.status(500).send({
+          message: 'Internal server error',
+          err: err.message,
+          stack: err.stack,
+        });
       }
-      res.status(400).send({
-        message: 'Internal server error',
-        err: err.message,
-        stack: err.stack,
-      });
     });
 };
 
@@ -99,14 +103,16 @@ const deleteLike = (req, res) => {
     })
     .catch((err) => {
       if (err.message == 'Card not found') {
-        res.status(404).send({ message: 'Card not found' })
-        return;
+        res.status(404).send({ message: 'Card not found' });
+      } else if (err.name = 'CastError') {
+        res.status(400).send({ message: 'incorrect data' });
+      } else {
+        res.status(500).send({
+          message: 'Internal server error',
+          err: err.message,
+          stack: err.stack,
+        });
       }
-      res.status(400).send({
-        message: 'Internal server error',
-        err: err.message,
-        stack: err.stack,
-      });
     });
 };
 
