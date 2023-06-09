@@ -19,14 +19,16 @@ const getUsersById = (req, res) => {
     })
     .catch((err) => {
       if (err.message == 'User not found') {
-        res.status(404).send({ message: 'User not foubd' })
-        return;
+        res.status(404).send({ message: 'User not found' });
+      } else if (err.name = 'CastError') {
+        res.status(400).send({ message: 'incorrect data' });
+      } else {
+        res.status(500).send({
+          message: 'Internal server error',
+          err: err.message,
+          stack: err.stack,
+        });
       }
-      res.status(400).send({
-        message: 'Internal server error',
-        err: err.message,
-        stack: err.stack,
-      });
     });
 };
 
@@ -73,14 +75,16 @@ const upDateUser = (req, res) => {
     })
     .catch((err) => {
       if (err.message == 'User not found') {
-        res.status(400).send({ message: 'User not foubd' })
-        return;
+        res.status(404).send({ message: 'User not found' });
+      } else if (err.name = 'CastError') {
+        res.status(400).send({ message: 'incorrect data' });
+      } else {
+        res.status(500).send({
+          message: 'Internal server error',
+          err: err.message,
+          stack: err.stack,
+        });
       }
-      res.status(400).send({
-        message: 'Internal server error',
-        err: err.message,
-        stack: err.stack,
-      });
     });
 };
 
@@ -92,14 +96,16 @@ const upDateUserAvatar = (req, res) => {
     })
     .catch((err) => {
       if (err.message == 'User not found') {
-        res.status(400).send({ message: 'User not foubd' })
-        return;
+        res.status(404).send({ message: 'User not found' });
+      } else if (err.name = 'CastError') {
+        res.status(400).send({ message: 'incorrect data' });
+      } else {
+        res.status(500).send({
+          message: 'Internal server error',
+          err: err.message,
+          stack: err.stack,
+        });
       }
-      res.status(400).send({
-        message: 'Invalid data for updating user avatar',
-        err: err.message,
-        stack: err.stack,
-      });
     });
 };
 
