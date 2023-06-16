@@ -30,7 +30,7 @@ const userSchema = new mongoose.Schema({
     validate: {
       validator: (email) => validator.isEmail(email),
       message: 'Некорректый адрес почты',
-    }
+    },
   },
   password: {
     type: String,
