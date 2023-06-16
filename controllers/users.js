@@ -52,11 +52,10 @@ const createUser = (req, res) => {
   const { name, about, avatar, email, password, } = req.body;
 
 
-
   bcrypt.hash(String(password), 10)
     .then((hash) => {
       User.create({ name, about, avatar, email, password: hash })
-        .then((user) => res.status(200).send(user.toJSON()))
+        .then((user) => res.status(200).send({data: user.toJSON()}))
         .catch((err) => {
           if (err.name === 'ValidationError') {
             res.status(400).send(err);
