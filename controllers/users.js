@@ -2,6 +2,8 @@ const { json } = require('express');
 const User = require('../models/user');
 const bcrypt = require('bcryptjs');
 
+
+
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.status(200).send(users))
