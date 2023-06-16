@@ -8,13 +8,6 @@ mongoose.connect('mongodb://0.0.0.0:27017/mestodb', {
   useNewUrlParser: true,
 });
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '647cbf0c1c01831d1ccd6f2f' // вставьте сюда _id созданного в предыдущем пункте пользователя
-  };
-
-  next();
-});
 
 app.use(express.json());
 

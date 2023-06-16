@@ -1,4 +1,6 @@
+const { json } = require('express');
 const User = require('../models/user');
+const bcrypt = require('bcryptjs');
 
 const getUsers = (req, res) => {
   User.find({})
@@ -10,6 +12,20 @@ const getUsers = (req, res) => {
         stack: err.stack,
       }));
 };
+
+const getUserInfo = (req, res) => {
+  User.findById(req.user._id)
+    .then((user) => {
+      if (!user) {
+        return res.status(404).send({ message: 'Пользователь не найден' });
+      }
+      res.status(200).send(user);
+    })
+    .catch(error => {
+      res.status(500).json({ message: 'Внутренняя ошибка сервера', error: error.message });
+    });
+};
+
 
 const getUsersById = (req, res) => {
   User.findById(req.params.id)
@@ -33,7 +49,7 @@ const getUsersById = (req, res) => {
 };
 
 const createUser = (req, res) => {
-  const { name, about } = req.body;
+  const { name, about, avatar, email, password, } = req.body;
 
   if (!name || !about || name.length < 2 || name.length > 30 || about.length < 2 || about.length > 30) {
     return res.status(400).send({
@@ -42,18 +58,21 @@ const createUser = (req, res) => {
     });
   }
 
-  User.create(req.body)
-    .then((user) => res.status(200).send(user))
-    .catch((err) => {
-      if (err.name == 'ValidationError') {
-        res.status(400).send(err);
-      } else if (err) {
-        res.status(400).send({
-          message: 'Invalid data for creating a user',
-          err: err.message,
-          stack: err.stack,
+  bcrypt.hash(password, 10)
+    .then((hash) => {
+      User.create({ name, about, avatar, email, password: hash })
+        .then((user) => res.status(200).send(user))
+        .catch((err) => {
+          if (err.name == 'ValidationError') {
+            res.status(400).send(err);
+          } else if (err) {
+            res.status(400).send({
+              message: 'Invalid data for creating a user',
+              err: err.message,
+              stack: err.stack,
+            });
+          }
         });
-      }
     });
 };
 
@@ -109,10 +128,39 @@ const upDateUserAvatar = (req, res) => {
     });
 };
 
+const login = (req, res) => {
+  const { email, password } = req.body;
+
+  User.findOne({ email })
+    .select('+password')
+    .orFail(() => new Error('User not found'))
+    .then((user) => {
+      bcrypt.compare(String(password), user.password)
+        .then((isValidUser) => {
+          if (isValidUser) {
+            const jwt = jsonWebToken.sign({
+              _id: user._id,
+            }, 'SECRET');
+
+            res.cookie('jwt', jwt, {
+              maxAge: 7 * 24 * 60 * 60 * 1000,
+              httpOnly: true,
+              sameSite: true,
+            });
+            res.send({ data: user.toJSON() });
+          } else {
+            res.status(403).send({ message: 'password error' });
+          }
+        });
+    });
+};
+
 module.exports = {
   getUsers,
   getUsersById,
   createUser,
   upDateUser,
   upDateUserAvatar,
+  login,
+  getUserInfo,
 };
