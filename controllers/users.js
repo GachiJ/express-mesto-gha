@@ -51,19 +51,14 @@ const getUsersById = (req, res) => {
 const createUser = (req, res) => {
   const { name, about, avatar, email, password, } = req.body;
 
-  if (!name || !about || name.length < 2 || name.length > 30 || about.length < 2 || about.length > 30) {
-    return res.status(400).send({
-      message: 'Invalid data for creating a user',
-      error: 'Name and about should be between 2 and 30 characters long',
-    });
-  }
+
 
   bcrypt.hash(String(password), 10)
     .then((hash) => {
       User.create({ name, about, avatar, email, password: hash })
-        .then((user) => res.status(200).send(user))
+        .then((user) => res.status(200).send(user.toJSON()))
         .catch((err) => {
-          if (err.name == 'ValidationError') {
+          if (err.name === 'ValidationError') {
             res.status(400).send(err);
           } else if (err) {
             res.status(400).send({
