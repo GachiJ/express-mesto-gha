@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
+const { validationCreatUser } = require('../meddlwares/validation')
 
 
 
@@ -18,14 +19,6 @@ router.patch('/users/me/avatar', upDateUserAvatar);
 
 router.post('/signin', login);
 
-router.post('/signup', /* celebrate({
-  body: Joi.object().keys({
-    name: Joi.string().min(2).max(30).required(),
-    about: Joi.string().min(2).max(30).required(),
-    avatar: Joi.string().uri().required(),
-    email: Joi.string().email().required(),
-    password: Joi.string().required(),
-  })
-}), */ createUser);
+router.post('/signup', validationCreatUser, createUser);
 
 module.exports = router;

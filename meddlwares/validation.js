@@ -1,11 +1,13 @@
-const Joi = require('joi');
+const { Joi, celebrate } = require('celebrate');
 
-const validationCreatUser = Joi.object().keys({
-  name: Joi.string().min(2).max(30).required(),
-  about: Joi.string().min(2).max(30).required(),
-  avatar: Joi.string().uri().required(),
-  email: Joi.string().email().required(),
-  password: Joi.string().required(),
+const validationCreatUser = celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string().uri().required(),
+    email: Joi.string().required().email(),
+    password: Joi.string().required(),
+  }),
 });
 
 module.exports = {

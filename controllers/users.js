@@ -1,7 +1,6 @@
 const { json } = require('express');
 const User = require('../models/user');
 const bcrypt = require('bcryptjs');
-const { validationCreatUser } = require('../meddlwares/validation');
 
 
 
@@ -52,22 +51,14 @@ const getUsersById = (req, res) => {
 };
 
 const createUser = (req, res) => {
-  const { name, about, avatar, email, password } = req.body;
+  const { name, about, avatar, email, password, } = req.body;
 
-  const { error } = validationCreatUser.validate(req.body);
+/*   const { error } = validationCreatUser.validate(req.body);
+
   if (error) {
-    res.status(400).send({
-      message: 'Invalid data for creating a user',
-      error: {
-        message: error.details[0].message,
-        path: error.details[0].path,
-        type: error.details[0].type,
-        context: error.details[0].context,
-      },
-    });
-    return;
-  }
-
+    // Ошибка валидации
+    return res.status(400).send({ message: 'Invalid data for creating a user', error: error.details });
+  } */
   bcrypt.hash(String(password), 10)
     .then((hash) => {
       User.create({ name, about, avatar, email, password: hash })
@@ -78,10 +69,8 @@ const createUser = (req, res) => {
           } else if (err) {
             res.status(400).send({
               message: 'Invalid data for creating a user',
-              error: {
-                message: err.message,
-                stack: err.stack,
-              },
+              err: err.message,
+              stack: err.stack,
             });
           }
         });
