@@ -3,6 +3,7 @@ const { celebrate, Joi } = require('celebrate');
 
 
 
+
 const { getUsers, getUsersById, createUser, upDateUser, upDateUserAvatar, login, getUserInfo, } = require('../controllers/users');
 
 router.get('/users', getUsers);
@@ -18,7 +19,7 @@ router.patch('/users/me/avatar', upDateUserAvatar);
 router.post('/signin', login);
 
 router.post('/signup', celebrate({
-  body: Joi.object({
+  body: Joi.object().keys({
     name: Joi.string().min(2).max(30).required(),
     about: Joi.string().min(2).max(30).required(),
     avatar: Joi.string().uri().required(),
