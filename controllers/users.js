@@ -52,23 +52,21 @@ const getUsersById = (req, res) => {
 };
 
 const createUser = (req, res) => {
-  const { name, about, avatar, email, password, } = req.body;
+  const { name, about, avatar, email, password } = req.body;
 
-  if (validationCreatUser.validate(req.body).error) {
-    // Обработка ошибки валидации, используя Joi
-    const error = validationCreatUser.validate(req.body).error.details[0];
+  const { error } = validationCreatUser.validate(req.body);
+  if (error) {
     res.status(400).send({
       message: 'Invalid data for creating a user',
       error: {
-        message: error.message,
-        path: error.path,
-        type: error.type,
-        context: error.context,
+        message: error.details[0].message,
+        path: error.details[0].path,
+        type: error.details[0].type,
+        context: error.details[0].context,
       },
     });
     return;
   }
-
 
   bcrypt.hash(String(password), 10)
     .then((hash) => {
@@ -80,8 +78,10 @@ const createUser = (req, res) => {
           } else if (err) {
             res.status(400).send({
               message: 'Invalid data for creating a user',
-              err: err.message,
-              stack: err.stack,
+              error: {
+                message: err.message,
+                stack: err.stack,
+              },
             });
           }
         });
