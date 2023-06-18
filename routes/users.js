@@ -19,9 +19,6 @@ router.patch('/users/me/avatar', upDateUserAvatar);
 
 router.post('/signin', login);
 
-router.post('/signup', validationCreatUser, createUser, (err, req, res, next) => {
-  // Обработчик ошибок
-  res.status(400).json({ message: 'Invalid data for creating a user', error: err });
-});
+router.post('/signup', validationCreatUser, createUser);
 
 module.exports = router;

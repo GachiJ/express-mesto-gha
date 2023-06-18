@@ -1,7 +1,6 @@
 const { json } = require('express');
 const User = require('../models/user');
-const bcrypt = require('bcryptjs');
-const { err } = require('celebrate');
+const bcrypt = require('bcrypt');
 
 
 
@@ -54,12 +53,7 @@ const getUsersById = (req, res) => {
 const createUser = (req, res, next) => {
   const { name, about, avatar, email, password, } = req.body;
 
- /*   const { error } = validationCreatUser.validate(req.body);
 
-    if (error) {
-      // Ошибка валидации
-      return res.status(400).send({ message: 'Invalid data for creating a user', error: error.details });
-    } */
   bcrypt.hash(String(password), 10)
     .then((hash) => {
       User.create({ name, about, avatar, email, password: hash })
