@@ -1,6 +1,6 @@
-/* const Joi = require('joi');
+const Joi = require('joi');
 
-const validationCreatUser = Joi.object({
+const validationCreatUser = Joi.object().keys({
   name: Joi.string().min(2).max(30).required(),
   about: Joi.string().min(2).max(30).required(),
   avatar: Joi.string().uri().required(),
@@ -10,4 +10,4 @@ const validationCreatUser = Joi.object({
 
 module.exports = {
   validationCreatUser,
-}; */
+};

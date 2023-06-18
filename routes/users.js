@@ -18,7 +18,7 @@ router.patch('/users/me/avatar', upDateUserAvatar);
 
 router.post('/signin', login);
 
-router.post('/signup', celebrate({
+router.post('/signup', /* celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30).required(),
     about: Joi.string().min(2).max(30).required(),
@@ -26,6 +26,6 @@ router.post('/signup', celebrate({
     email: Joi.string().email().required(),
     password: Joi.string().required(),
   })
-}), createUser);
+}), */ createUser);
 
 module.exports = router;
