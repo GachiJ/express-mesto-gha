@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const Joi = require('joi');
 
 
 const { getUsers, getUsersById, createUser, upDateUser, upDateUserAvatar, login, getUserInfo, } = require('../controllers/users');
@@ -22,7 +23,7 @@ router.post('/signup', celebrate({
     avatar: Joi.string().uri().required(),
     email: Joi.string().email().required(),
     password: Joi.string().required(),
-  });
+  })
 }), createUser);
 
 module.exports = router;
