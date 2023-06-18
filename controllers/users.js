@@ -1,7 +1,7 @@
 const { json } = require('express');
 const User = require('../models/user');
 const bcrypt = require('bcryptjs');
-const validationCreatUser = require('../meddlwares/validation')
+const { validationCreatUser } = require('../meddlwares/validation');
 
 
 
@@ -54,26 +54,29 @@ const getUsersById = (req, res) => {
 const createUser = (req, res) => {
   const { name, about, avatar, email, password, } = req.body;
 
-  if (validationCreatUser.validate) {
-    return bcrypt.hash(String(password), 10)
-      .then((hash) => {
-        User.create({ name, about, avatar, email, password: hash })
-          .then((user) => res.status(200).send({ data: user.toJSON() }))
-          .catch((err) => {
-            if (err.name === 'ValidationError') {
-              res.status(400).send(err);
-            } else if (err) {
-              res.status(400).send({
-                message: 'Invalid data for creating a user',
-                err: err.message,
-                stack: err.stack,
-              });
-            }
-          })
-      })
-  }
-}
+  const { error } = validationCreatUser.validate(req.body);
 
+  if (error) {
+    // Ошибка валидации
+    return res.status(400).send({ message: 'Invalid data for creating a user', error: error.details });
+  }
+  bcrypt.hash(String(password), 10)
+    .then((hash) => {
+      User.create({ name, about, avatar, email, password: hash })
+        .then((user) => res.status(200).send({ data: user.toJSON() }))
+        .catch((err) => {
+          if (err.name === 'ValidationError') {
+            res.status(400).send(err);
+          } else if (err) {
+            res.status(400).send({
+              message: 'Invalid data for creating a user',
+              err: err.message,
+              stack: err.stack,
+            });
+          }
+        });
+    });
+};
 
 const upDateUser = (req, res) => {
 
