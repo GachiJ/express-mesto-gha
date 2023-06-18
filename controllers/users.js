@@ -62,7 +62,7 @@ const createUser = (req, res, next) => {
           if (err.name === 'ValidationError') {
             res.status(400).send(err);
           } else if (err) {
-            res.status(400).send({
+            res.status(409).send({
               message: 'Invalid data for creating a user',
               err: err.message,
               stack: err.stack,
