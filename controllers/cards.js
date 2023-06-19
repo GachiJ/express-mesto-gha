@@ -60,7 +60,7 @@ const deleteCardById = (req, res) => {
       if (err.message == 'Card not found') {
         res.status(404).send({ message: 'Card not found' });
       } else if (err.name = 'CastError') {
-        res.status(400).send({ message: 'incorrect data' });
+        res.status(404).send({ message: 'incorrect data' });
       } else {
         res.status(500).send({
           message: 'Internal server error',
