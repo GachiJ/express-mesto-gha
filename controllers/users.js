@@ -151,7 +151,7 @@ const login = (req, res) => {
             });
             res.send({ data: user.toJSON() });
           } else {
-            res.status(403).send({ message: 'password error' });
+            return res.status(403).send({ message: 'password error' });
           }
         });
     })
