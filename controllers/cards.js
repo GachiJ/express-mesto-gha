@@ -32,13 +32,13 @@ const createCard = (req, res) => {
 };
 
 const deleteCardById = (req, res) => {
-  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+  if (!mongoose.Types.ObjectId.isValid(req.params.cardId)) {
     return res.status(400).send({
       message: 'Invalid card ID',
     });
   }
 
-  Card.findByIdAndDelete(req.params.id)
+  Card.findByIdAndDelete(req.params.cardId)
     .orFail(new Error('Card not found'))
     .then((card) => {
       res.status(200).send({ data: card })
