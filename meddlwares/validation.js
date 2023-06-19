@@ -9,12 +9,6 @@ const validationUrl = (req, res, url) => {
   res.status(404).send({ message: 'incorrect data' });
 };
 
-const validationID = (req, res, id) => {
-  if (/^[0-9a-fA-F]{24}$/.test(id)) {
-    return id;
-  }
-  res.status(404).send({ message: 'incorrect data' });
-};
 
 const validationCreatUser = celebrate({
   body: Joi.object().keys({
@@ -43,7 +37,7 @@ const validationUpdateUser = celebrate({
 
 const validationUserId = celebrate({
   params: Joi.object().keys({
-    userId: Joi.string().required().custom(validationID),
+    id: Joi.string().required().length(24).pattern(/^[0-9a-fA-F]{24}$/),
   }),
 });
 
@@ -56,7 +50,7 @@ const validationCreateCard = celebrate({
 
 const validationCardById = celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().required().custom(validationID),
+    cardId: Joi.string().required().pattern(/[a-z][0-9]+/),
   }),
 });
 
