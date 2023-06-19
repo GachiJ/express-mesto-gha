@@ -13,7 +13,7 @@ router.patch('/users/me', validationUpdateUser, upDateUser);
 
 router.get('/users/me', getUserInfo);
 
-router.patch('/users/me/avatar', upDateUserAvatar);
+router.patch('/users/me/avatar', validationUpdateUser, upDateUserAvatar);
 
 
 
