@@ -46,6 +46,8 @@ const deleteCardById = (req, res) => {
     .catch((err) => {
       if (err.message == 'Card not found') {
         res.status(404).send({ message: 'Card not found' });
+      } else if (card.owner !== userId) {
+        res.status(403).json({ message: 'There is no permission to delete the card' });
       } else if (err.name = 'CastError') {
         res.status(400).send({ message: 'incorrect data' });
       } else {
