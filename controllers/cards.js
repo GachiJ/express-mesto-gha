@@ -38,6 +38,10 @@ const deleteCardById = (req, res) => {
     });
   }
 
+  if (card.owner !== req.user._id) {
+    return res.status(403).json({ message: 'Нет разрешения на удаление карточки' });
+  }
+
   Card.findByIdAndDelete(req.params.cardId)
     .orFail(new Error('Card not found'))
     .then((card) => {
@@ -46,8 +50,6 @@ const deleteCardById = (req, res) => {
     .catch((err) => {
       if (err.message == 'Card not found') {
         res.status(404).send({ message: 'Card not found' });
-      } else if (card.owner !== userId) {
-        res.status(403).json({ message: 'There is no permission to delete the card' });
       } else if (err.name = 'CastError') {
         res.status(400).send({ message: 'incorrect data' });
       } else {
