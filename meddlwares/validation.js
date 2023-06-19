@@ -1,13 +1,7 @@
 const { celebrate, Joi } = require('celebrate');
 const isUrl = require('validator/lib/isURL');
 
-const validationUrl = (req,res, url) => {
-  const validate = isUrl(url);
-  if (validate) {
-    return url;
-  }
-  res.status(400).send({ message: 'incorrect data' });
-};
+
 
 const validationCreatUser = celebrate({
   body: Joi.object().keys({
@@ -34,10 +28,16 @@ const validationUpdateUser = celebrate({
   }),
 });
 
+const validationUserId = celebrate({
+  params: Joi.object().keys({
+    userId: Joi.string().required().pattern(/^[0-9a-fA-F]{24}$/),
+  }),
+});
+
 const validationCreateCard = celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30).required(),
-    link: Joi.string().required().custom(validationUrl),
+    link: Joi.string().required().pattern(/http(s)?:\/\/(www.)?[a-z0-9\.\-]+\/[a-z0-9\.\-_~:\/?#\[\]@!$&'()*+,;=]+/),
   }),
 });
 
@@ -48,4 +48,5 @@ module.exports = {
   validationLogin,
   validationUpdateUser,
   validationCreateCard,
+  validationUserId,
 };
