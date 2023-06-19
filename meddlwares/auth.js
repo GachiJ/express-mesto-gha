@@ -4,21 +4,20 @@ const auth = (req, res, next) => {
   const { authorization } = req.headers;
 
   if (!authorization || !authorization.startsWith('Bearer ')) {
-    res.status(401).send({ message: 'Authorization needed' });
+    return next({ status: 401, message: 'Authorization needed' });
   }
 
   const token = authorization.replace('Bearer ', '');
   let payload;
 
-
   try {
-    payload = jwt.verify(token, 'SECRET');
+    payload = jwt.verify(token, process.env.JWT_SECRET);
   } catch (err) {
-    next(err);
+    return next(err);
   }
 
   req.user = payload;
-  next()
+  next();
 };
 
 module.exports = auth;
