@@ -158,7 +158,11 @@ const login = (req, res) => {
     .catch((err) => {
       if (err.message === 'User not found') {
         // Обработка ошибки, когда пользователь не найден
-        return res.status(404).json({ error: 'User not found' });
+        return res.status(401).json({
+          message: 'User not found',
+          err: err.message,
+          stack: err.stack,
+        });
       }
       // Обработка других ошибок
       return res.status(500).json({ error: 'Internal Server Error' });
