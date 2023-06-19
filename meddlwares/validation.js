@@ -6,14 +6,14 @@ const validationUrl = (req, res, url) => {
   if (validate) {
     return url;
   }
-  res.status(400).send({ message: 'incorrect data' });
+  res.status(404).send({ message: 'incorrect data' });
 };
 
 const validationID = (req, res, id) => {
   if (/^[0-9a-fA-F]{24}$/.test(id)) {
     return id;
   }
-  res.status(400).send({ message: 'incorrect data' });
+  res.status(404).send({ message: 'incorrect data' });
 };
 
 const validationCreatUser = celebrate({
