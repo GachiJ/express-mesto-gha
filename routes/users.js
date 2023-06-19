@@ -1,20 +1,19 @@
 const router = require('express').Router();
-const { celebrate, Joi } = require('celebrate');
-const { validationCreatUser, validationLogin } = require('../meddlwares/validation')
-const auth = require('../meddlwares/auth')
+
+
+const { getUsers, getUsersById, upDateUser, upDateUserAvatar, getUserInfo, } = require('../controllers/users');
 
 
 
+router.get('/users', getUsers);
 
-const { getUsers, getUsersById, createUser, upDateUser, upDateUserAvatar, login, getUserInfo, } = require('../controllers/users');
+router.get('/users/:id', getUsersById);
 
-router.post('/signin', validationLogin, login);
+router.patch('/users/me', upDateUser);
 
-router.post('/signup', validationCreatUser, createUser);
+router.get('/users/me', getUserInfo);
 
-router.use(auth);
-
-
+router.patch('/users/me/avatar', upDateUserAvatar);
 
 
 
