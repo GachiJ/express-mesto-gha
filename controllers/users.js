@@ -1,6 +1,7 @@
 const { json } = require('express');
 const User = require('../models/user');
 const bcrypt = require('bcrypt');
+const jsonWebToken = require('jsonwebtoken');
 
 
 
@@ -134,7 +135,7 @@ const login = (req, res) => {
 
   User.findOne({ email })
     .select('+password')
-    .orFail(() => new Error('User not found'))
+    .orFail(new Error('User not found'))
     .then((user) => {
       bcrypt.compare(String(password), user.password)
         .then((isValidUser) => {
@@ -153,6 +154,14 @@ const login = (req, res) => {
             res.status(403).send({ message: 'password error' });
           }
         });
+    })
+    .catch((err) => {
+      if (err.message === 'User not found') {
+        // Обработка ошибки, когда пользователь не найден
+        return res.status(404).json({ error: 'User not found' });
+      }
+      // Обработка других ошибок
+      return res.status(500).json({ error: 'Internal Server Error' });
     });
 };
 
