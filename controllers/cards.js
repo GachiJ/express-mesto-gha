@@ -38,12 +38,21 @@ const deleteCardById = (req, res) => {
     });
   }
 
-  if (card.owner !== req.user._id) {
-    return res.status(403).json({ message: 'Нет разрешения на удаление карточки' });
-  }
 
-  Card.findByIdAndDelete(req.params.cardId)
-    .orFail(new Error('Card not found'))
+  Card.findById(req.params.cardId)
+    .then((card) => {
+      if (!card) {
+        new Error('Card not found');
+      }
+
+      if (card.owner.toString() !== req.user._id) {
+        return res.status(403).send({
+          message: 'You are not authorized to delete this card',
+        });
+      }
+
+      return Card.findByIdAndDelete(req.params.cardId);
+    })
     .then((card) => {
       res.status(200).send({ data: card })
     })
