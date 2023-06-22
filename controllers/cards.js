@@ -48,13 +48,7 @@ const deleteCardById = (req, res, next) => {
     .then((card) => {
       res.status(200).send({ data: card });
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new ForbiddenError('Вы не имеете права удалять чужую карту'));
-      } else {
-        next(new InternalServerError('Внутренняя ошибка сервера'));
-      }
-    });
+    .catch(next);
 };
 
 const likeCard = (req, res, next) => {
