@@ -4,12 +4,6 @@ class NotFoundError extends Error {
     this.message = message;
     this.statusCode = 404;
   }
-
-  toJSON() {
-    return {
-      message: this.message,
-    };
-  }
 }
 
 module.exports = NotFoundError;
