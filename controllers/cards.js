@@ -30,19 +30,17 @@ const createCard = (req, res, next) => {
 
 const deleteCardById = (req, res, next) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.cardId)) {
-    return res.status(400).send({
-      message: 'Invalid card ID',
-    });
+    return next(new BadRequestError('Недействительный идентификатор карты'));
   }
 
-  Card.findById(req.params.cardId)
+  return Card.findById(req.params.cardId)
     .then((card) => {
       if (!card) {
-        throw new NotFoundError('Card not found');
+        throw next(new NotFoundError('Карточка не найдена'));
       }
 
       if (card.owner.toString() !== req.user._id) {
-        throw new ForbiddenError('You are not authorized to delete this card');
+        return next(new ForbiddenError('Вы не имеете права удалять чужую карту'));
       }
 
       return Card.findByIdAndDelete(req.params.cardId);
@@ -51,14 +49,10 @@ const deleteCardById = (req, res, next) => {
       res.status(200).send({ data: card });
     })
     .catch((err) => {
-      if (err instanceof NotFoundError) {
-        next(new NotFoundError('Card not found'));
-      } else if (err instanceof ForbiddenError) {
-        next(new ForbiddenError('You are not authorized to delete this card'));
-      } else if (err.name === 'CastError') {
-        next(new BadRequestError('Incorrect data'));
+      if (err.name === 'ValidationError') {
+        next(new ForbiddenError('Вы не имеете права удалять чужую карту'));
       } else {
-        next(new InternalServerError('Internal server error'));
+        next(new InternalServerError('Внутренняя ошибка сервера'));
       }
     });
 };
