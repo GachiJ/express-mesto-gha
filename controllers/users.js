@@ -1,19 +1,15 @@
-const { json } = require('express');
-const User = require('../models/user');
 const bcrypt = require('bcrypt');
 const jsonWebToken = require('jsonwebtoken');
-
-
+const User = require('../models/user');
 
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.status(200).send(users))
-    .catch((err) =>
-      res.status(400).send({
-        message: 'Internal server error',
-        err: err.message,
-        stack: err.stack,
-      }));
+    .catch((err) => res.status(400).send({
+      message: 'Internal server error',
+      err: err.message,
+      stack: err.stack,
+    }));
 };
 
 const getUserInfo = (req, res) => {
@@ -22,13 +18,12 @@ const getUserInfo = (req, res) => {
       if (!user) {
         return res.status(404).send({ message: 'Пользователь не найден' });
       }
-      res.status(200).send(user);
+      return res.status(200).send(user);
     })
-    .catch(error => {
+    .catch((error) => {
       res.status(500).json({ message: 'Внутренняя ошибка сервера', error: error.message });
     });
 };
-
 
 const getUsersById = (req, res) => {
   User.findById(req.params.id)
@@ -37,9 +32,9 @@ const getUsersById = (req, res) => {
       res.status(200).send(user);
     })
     .catch((err) => {
-      if (err.message == 'User not found') {
+      if (err.message === 'User not found') {
         res.status(404).send({ message: 'User not found' });
-      } else if (err.name = 'CastError') {
+      } else if (err.name === 'CastError') {
         res.status(400).send({ message: 'incorrect data' });
       } else {
         res.status(500).send({
@@ -51,13 +46,16 @@ const getUsersById = (req, res) => {
     });
 };
 
-const createUser = (req, res, next) => {
-  const { name, about, avatar, email, password, } = req.body;
-
+const createUser = (req, res) => {
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
 
   bcrypt.hash(String(password), 10)
     .then((hash) => {
-      User.create({ name, about, avatar, email, password: hash })
+      User.create({
+        name, about, avatar, email, password: hash,
+      })
         .then((user) => res.status(200).send({ data: user.toJSON() }))
         .catch((err) => {
           if (err.name === 'ValidationError') {
@@ -69,30 +67,30 @@ const createUser = (req, res, next) => {
               stack: err.stack,
             });
           }
-        })
+        });
     });
 };
 
 const upDateUser = (req, res) => {
-
   const { name, about } = req.body;
 
-  if (!name || !about || name.length < 2 || name.length > 30 || about.length < 2 || about.length > 30) {
+  if (!name || !about || name.length < 2 || name.length > 30
+    || about.length < 2 || about.length > 30) {
     return res.status(400).send({
       message: 'Invalid data for creating a user',
       error: 'Name and about should be between 2 and 30 characters long',
     });
   }
 
-  User.findByIdAndUpdate(req.user._id, req.body, { new: true, runValidators: true })
+  return User.findByIdAndUpdate(req.user._id, req.body, { new: true, runValidators: true })
     .orFail(new Error('User not found'))
     .then((userInfo) => {
       res.status(200).send(userInfo);
     })
     .catch((err) => {
-      if (err.message == 'User not found') {
+      if (err.message === 'User not found') {
         res.status(404).send({ message: 'User not found' });
-      } else if (err.name = 'CastError') {
+      } else if (err.name === 'CastError') {
         res.status(400).send({ message: 'incorrect data' });
       } else {
         res.status(500).send({
@@ -111,9 +109,9 @@ const upDateUserAvatar = (req, res) => {
       res.status(200).send(userInfo);
     })
     .catch((err) => {
-      if (err.message == 'User not found') {
+      if (err.message === 'User not found') {
         res.status(404).send({ message: 'User not found' });
-      } else if (err.name = 'CastError') {
+      } else if (err.name === 'CastError') {
         res.status(400).send({ message: 'incorrect data' });
       } else {
         res.status(500).send({
@@ -151,7 +149,7 @@ const login = (req, res) => {
             });
             res.send({ data: user.toJSON() });
           } else {
-            return res.status(403).send({ message: 'password error' });
+            res.status(403).send({ message: 'password error' });
           }
         });
     })

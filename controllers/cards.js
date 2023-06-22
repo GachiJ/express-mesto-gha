@@ -1,130 +1,120 @@
-const Card = require('../models/card');
 const mongoose = require('mongoose');
-const ERROR_CODE = 400;
+const Card = require('../models/card');
+const BadRequestError = require('../meddlwares/errors/BadRequestError');
+const NotFoundError = require('../meddlwares/errors/NotFoundError');
+const ForbiddenError = require('../meddlwares/errors/ForbiddenError');
+const InternalServerError = require('../meddlwares/errors/InternalServerError');
 
-const getCards = (req, res) => {
+const getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => res.status(200).send(cards))
-    .catch((err) => res.status(400).send({
-      message: 'Internal server error',
-      err: err.message,
-      stack: err.stack,
-    }));
+    .catch((err) => {
+      next(err);
+    });
 };
 
-const createCard = (req, res) => {
+const createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
 
   Card.create({ name, link, owner })
-    .then((card) => res.status(200).send(card))
+    .then((card) => res.status(201).send(card))
     .catch((err) => {
-      if (err.name == 'ValidationError') {
-        res.status(400).send(err);
-      } else if (err) {
-        res.status(500).send({
-          message: 'Internal server error',
-          err: err.message,
-          stack: err.stack,
-        });
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError('Переданы некорректные данные при создании карточки'));
+      } else {
+        next(err);
       }
     });
+  /*  if (err.name === 'ValidationError') {
+     res.status(400).send(err);
+   } else if (err) {
+     res.status(500).send({
+       message: 'Internal server error',
+       err: err.message,
+       stack: err.stack,
+     });
+   }
+ }); */
 };
 
-const deleteCardById = (req, res) => {
+const deleteCardById = (req, res, next) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.cardId)) {
-    return res.status(400).send({
-      message: 'Invalid card ID',
-    });
+    return next(new BadRequestError('Недействительный идентификатор карты'));
   }
 
-
-  Card.findById(req.params.cardId)
+  return Card.findById(req.params.cardId)
     .then((card) => {
       if (!card) {
-        new Error('Card not found');
+        throw next(new NotFoundError('Карточка не найдена'));
       }
 
       if (card.owner.toString() !== req.user._id) {
-        return res.status(403).send({
-          message: 'You are not authorized to delete this card',
-        });
+        return next(new ForbiddenError('Вы не имеете права удалять чужую карту'));
       }
 
       return Card.findByIdAndDelete(req.params.cardId);
     })
     .then((card) => {
-      res.status(200).send({ data: card })
+      res.status(200).send({ data: card });
     })
     .catch((err) => {
-      if (err.message == 'Card not found') {
-        res.status(404).send({ message: 'Card not found' });
-      } else if (err.name = 'CastError') {
-        res.status(404).send({ message: 'incorrect data' });
+      if (err.message === 'Card not found') {
+        next(new NotFoundError('Карточка не найдена'));
+      } else if (err.name === 'CastError') {
+        next(new ForbiddenError('Вы не имеете права удалять чужую карту'));
       } else {
-        res.status(500).send({
-          message: 'Internal server error',
-          err: err.message,
-          stack: err.stack,
-        });
+        next(new InternalServerError('Внутренняя ошибка сервера'));
       }
     });
 };
 
-const likeCard = (req, res) => {
+const likeCard = (req, res, next) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.cardId)) {
-    return res.status(400).send({
-      message: 'Invalid card ID',
-    });
+    return next(new NotFoundError('Карточка не найдена'));
   }
 
-  Card.findByIdAndUpdate(req.params.cardId,
+  return Card.findByIdAndUpdate(
+    req.params.cardId,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
-    { new: true })
+    { new: true },
+  )
     .orFail(new Error('Card not found'))
     .then((card) => {
-      res.status(200).send({ data: card })
+      res.status(200).send({ data: card });
     })
     .catch((err) => {
-      if (err.message == 'Card not found') {
-        res.status(404).send({ message: 'Card not found' });
-      } else if (err.name = 'CastError') {
-        res.status(400).send({ message: 'incorrect data' });
+      if (err.message === 'Card not found') {
+        next(new NotFoundError('Карточка не найдена'));
+      } else if (err.name === 'CastError') {
+        next(new BadRequestError('Переданы некорректные данные'));
       } else {
-        res.status(500).send({
-          message: 'Internal server error',
-          err: err.message,
-          stack: err.stack,
-        });
+        next(new InternalServerError('Внутренняя ошибка сервера'));
       }
     });
 };
 
-const deleteLike = (req, res) => {
+const deleteLike = (req, res, next) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.cardId)) {
-    return res.status(400).send({
-      message: 'Invalid card ID',
-    });
+    return next(new BadRequestError('Недействительный идентификатор карты'));
   }
 
-  Card.findByIdAndUpdate(req.params.cardId,
-    { $pull: { likes: req.user._id } }, // убрать _id из массива
-    { new: true },)
+  return Card.findByIdAndUpdate(
+    req.params.cardId,
+    { $pull: { likes: req.user._id } },
+    { new: true },
+  )
     .orFail(new Error('Card not found'))
     .then((card) => {
-      res.status(200).send({ data: card })
+      res.status(200).send({ data: card });
     })
     .catch((err) => {
-      if (err.message == 'Card not found') {
-        res.status(404).send({ message: 'Card not found' });
-      } else if (err.name = 'CastError') {
-        res.status(400).send({ message: 'incorrect data' });
+      if (err.message === 'Card not found') {
+        next(new NotFoundError('Карточка не найдена'));
+      } else if (err.name === 'CastError') {
+        next(new BadRequestError('Переданы некорректные данные'));
       } else {
-        res.status(500).send({
-          message: 'Internal server error',
-          err: err.message,
-          stack: err.stack,
-        });
+        next(new InternalServerError('Внутренняя ошибка сервера'));
       }
     });
 };

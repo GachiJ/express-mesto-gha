@@ -1,17 +1,9 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const routes = require('./routes');
 const { errors } = require('celebrate');
-const { validationCreatUser, validationLogin } = require('./meddlwares/validation')
-const auth = require('./meddlwares/auth')
-const { createUser, login, } = require('./controllers/users');
 const bodyParser = require('body-parser');
-
 const cookieParser = require('cookie-parser');
-
-
-
-
+const routes = require('./routes');
 
 const app = express();
 
@@ -23,11 +15,5 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-app.post('/signin', validationLogin, login);
-app.post('/signup', validationCreatUser, createUser);
-app.use(auth);
 app.use(routes);
 app.use(errors());
-app.listen(3000, () => {
-  console.log("Слушаю 3000 порт");
-});
