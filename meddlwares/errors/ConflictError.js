@@ -1,6 +1,7 @@
 class ConflictError extends Error {
-  constructor(message) {
-    super(message);
+  constructor(err) {
+    super(err);
+    this.message = err.body;
     this.statusCode = 409;
   }
 }
