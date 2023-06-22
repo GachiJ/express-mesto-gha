@@ -103,11 +103,6 @@ const upDateUserAvatar = (req, res, next) => {
 const login = (req, res, next) => {
   const { email, password } = req.body;
 
-  if (!email || !password) {
-    res.status(403).send({ message: 'Enter the data' });
-    return;
-  }
-
   User.findOne({ email })
     .select('+password')
     .orFail(new Error('User not found'))

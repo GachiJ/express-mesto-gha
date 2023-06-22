@@ -17,6 +17,4 @@ app.use(cookieParser());
 
 app.use(routes);
 app.use(errors());
-app.listen(3000, () => {
-  console.log('Слушаю 3000 порт');
-});
+app.listen(3000);
