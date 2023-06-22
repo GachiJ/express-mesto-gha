@@ -1,31 +1,32 @@
 const bcrypt = require('bcrypt');
 const jsonWebToken = require('jsonwebtoken');
 const User = require('../models/user');
+const NotFoundError = require('../meddlwares/errors/NotFoundError');
+const InternalServerError = require('../meddlwares/errors/InternalServerError');
+const BadRequestError = require('../meddlwares/errors/BadRequestError');
+const ConflictError = require('../meddlwares/errors/ConflictError');
+const AuthError = require('../meddlwares/errors/AuthError');
 
-const getUsers = (req, res) => {
+const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.status(200).send(users))
-    .catch((err) => res.status(400).send({
-      message: 'Internal server error',
-      err: err.message,
-      stack: err.stack,
-    }));
+    .catch((err) => next(err));
 };
 
-const getUserInfo = (req, res) => {
+const getUserInfo = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
       if (!user) {
-        return res.status(404).send({ message: 'Пользователь не найден' });
+        return next(new NotFoundError('Пользователь не найден'));
       }
       return res.status(200).send(user);
     })
-    .catch((error) => {
-      res.status(500).json({ message: 'Внутренняя ошибка сервера', error: error.message });
+    .catch((err) => {
+      next(err);
     });
 };
 
-const getUsersById = (req, res) => {
+const getUsersById = (req, res, next) => {
   User.findById(req.params.id)
     .orFail(new Error('User not found'))
     .then((user) => {
@@ -33,20 +34,16 @@ const getUsersById = (req, res) => {
     })
     .catch((err) => {
       if (err.message === 'User not found') {
-        res.status(404).send({ message: 'User not found' });
+        next(new NotFoundError('Пользователь не найден'));
       } else if (err.name === 'CastError') {
-        res.status(400).send({ message: 'incorrect data' });
+        next(new BadRequestError('Переданы некорректные данные'));
       } else {
-        res.status(500).send({
-          message: 'Internal server error',
-          err: err.message,
-          stack: err.stack,
-        });
+        next(new InternalServerError('Внутрення серверная ошибка'));
       }
     });
 };
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
@@ -56,53 +53,37 @@ const createUser = (req, res) => {
       User.create({
         name, about, avatar, email, password: hash,
       })
-        .then((user) => res.status(200).send({ data: user.toJSON() }))
+        .then((user) => res.status(201).send({ data: user.toJSON() }))
         .catch((err) => {
           if (err.name === 'ValidationError') {
-            res.status(400).send(err);
-          } else if (err) {
-            res.status(409).send({
-              message: 'Invalid data for creating a user',
-              err: err.message,
-              stack: err.stack,
-            });
+            next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
+          } else if (err.code === 11000) {
+            next(new ConflictError('Пользователь с таким email уже существует'));
+          } else {
+            next(new InternalServerError('Внутрення серверная ошибка'));
           }
         });
     });
 };
 
-const upDateUser = (req, res) => {
-  const { name, about } = req.body;
-
-  if (!name || !about || name.length < 2 || name.length > 30
-    || about.length < 2 || about.length > 30) {
-    return res.status(400).send({
-      message: 'Invalid data for creating a user',
-      error: 'Name and about should be between 2 and 30 characters long',
-    });
-  }
-
-  return User.findByIdAndUpdate(req.user._id, req.body, { new: true, runValidators: true })
+const upDateUser = (req, res, next) => {
+  User.findByIdAndUpdate(req.user._id, req.body, { new: true, runValidators: true })
     .orFail(new Error('User not found'))
     .then((userInfo) => {
       res.status(200).send(userInfo);
     })
     .catch((err) => {
-      if (err.message === 'User not found') {
-        res.status(404).send({ message: 'User not found' });
-      } else if (err.name === 'CastError') {
-        res.status(400).send({ message: 'incorrect data' });
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError('Переданы некорректные данные при обновлении'));
+      } else if (err.message === 'User not found') {
+        next(new NotFoundError('Пользователь не найден'));
       } else {
-        res.status(500).send({
-          message: 'Internal server error',
-          err: err.message,
-          stack: err.stack,
-        });
+        next(new InternalServerError('Внутрення серверная ошибка'));
       }
     });
 };
 
-const upDateUserAvatar = (req, res) => {
+const upDateUserAvatar = (req, res, next) => {
   User.findByIdAndUpdate(req.user._id, req.body, { new: true, runValidators: true })
     .orFail(new Error('User not found'))
     .then((userInfo) => {
@@ -110,20 +91,16 @@ const upDateUserAvatar = (req, res) => {
     })
     .catch((err) => {
       if (err.message === 'User not found') {
-        res.status(404).send({ message: 'User not found' });
-      } else if (err.name === 'CastError') {
-        res.status(400).send({ message: 'incorrect data' });
+        next(new NotFoundError('Пользователь не найден'));
+      } else if (err.name === 'ValidationError') {
+        next(new BadRequestError('Переданы некорректные данные при обнолвнии'));
       } else {
-        res.status(500).send({
-          message: 'Internal server error',
-          err: err.message,
-          stack: err.stack,
-        });
+        next(new InternalServerError('Внутрення серверная ошибка'));
       }
     });
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -149,21 +126,17 @@ const login = (req, res) => {
             });
             res.send({ data: user.toJSON() });
           } else {
-            res.status(403).send({ message: 'password error' });
+            next(new AuthError('Ошибка авторизации'));
           }
         });
     })
     .catch((err) => {
       if (err.message === 'User not found') {
-        // Обработка ошибки, когда пользователь не найден
-        return res.status(401).json({
-          message: 'User not found',
-          err: err.message,
-          stack: err.stack,
-        });
+        next(new NotFoundError('Пользователь не найден'));
+      } else if (err === 'ValidationError') {
+        next(new BadRequestError('Переданы некорректные данные'));
       }
-      // Обработка других ошибок
-      return res.status(500).json({ error: 'Internal Server Error' });
+      return next(new InternalServerError('Внутрення серверная ошибка'));
     });
 };
 

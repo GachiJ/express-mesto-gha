@@ -26,16 +26,6 @@ const createCard = (req, res, next) => {
         next(err);
       }
     });
-  /*  if (err.name === 'ValidationError') {
-     res.status(400).send(err);
-   } else if (err) {
-     res.status(500).send({
-       message: 'Internal server error',
-       err: err.message,
-       stack: err.stack,
-     });
-   }
- }); */
 };
 
 const deleteCardById = (req, res, next) => {
@@ -61,7 +51,7 @@ const deleteCardById = (req, res, next) => {
     .catch((err) => {
       if (err.message === 'Card not found') {
         next(new NotFoundError('Карточка не найдена'));
-      } else if (err.name === 'CastError') {
+      } else if (err.name === 'ValidationError') {
         next(new ForbiddenError('Вы не имеете права удалять чужую карту'));
       } else {
         next(new InternalServerError('Внутренняя ошибка сервера'));
@@ -86,7 +76,7 @@ const likeCard = (req, res, next) => {
     .catch((err) => {
       if (err.message === 'Card not found') {
         next(new NotFoundError('Карточка не найдена'));
-      } else if (err.name === 'CastError') {
+      } else if (err.name === 'ValidationError') {
         next(new BadRequestError('Переданы некорректные данные'));
       } else {
         next(new InternalServerError('Внутренняя ошибка сервера'));
@@ -111,7 +101,7 @@ const deleteLike = (req, res, next) => {
     .catch((err) => {
       if (err.message === 'Card not found') {
         next(new NotFoundError('Карточка не найдена'));
-      } else if (err.name === 'CastError') {
+      } else if (err.name === 'ValidationError') {
         next(new BadRequestError('Переданы некорректные данные'));
       } else {
         next(new InternalServerError('Внутренняя ошибка сервера'));
