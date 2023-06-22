@@ -49,9 +49,7 @@ const deleteCardById = (req, res, next) => {
       res.status(200).send({ data: card });
     })
     .catch((err) => {
-      if (err.message === 'Card not found') {
-        next(new NotFoundError('Карточка не найдена'));
-      } else if (err.name === 'ValidationError') {
+      if (err.name === 'ValidationError') {
         next(new ForbiddenError('Вы не имеете права удалять чужую карту'));
       } else {
         next(new InternalServerError('Внутренняя ошибка сервера'));

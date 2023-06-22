@@ -91,7 +91,7 @@ const upDateUserAvatar = (req, res, next) => {
     })
     .catch((err) => {
       if (err.message === 'User not found') {
-        next(new NotFoundError('Пользователь не найден'));
+        next(new AuthError('Ошибка авторизации'));
       } else if (err.name === 'ValidationError') {
         next(new BadRequestError('Переданы некорректные данные при обнолвнии'));
       } else {
