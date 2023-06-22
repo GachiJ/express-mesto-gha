@@ -36,11 +36,11 @@ const deleteCardById = (req, res, next) => {
   return Card.findById(req.params.cardId)
     .then((card) => {
       if (!card) {
-        throw next(new NotFoundError('Карточка не найдена'));
+        throw new NotFoundError('Карточка не найдена');
       }
 
       if (card.owner.toString() !== req.user._id) {
-        return next(new ForbiddenError('Вы не имеете права удалять чужую карту'));
+        throw new ForbiddenError('Вы не имеете права удалять чужую карту');
       }
 
       return Card.findByIdAndDelete(req.params.cardId);
@@ -54,7 +54,6 @@ const deleteCardById = (req, res, next) => {
       } else {
         next(new InternalServerError('Внутренняя ошибка сервера'));
       }
-      next(err);
     });
 };
 
