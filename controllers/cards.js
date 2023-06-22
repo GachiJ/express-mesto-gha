@@ -54,6 +54,7 @@ const deleteCardById = (req, res, next) => {
       } else {
         next(new InternalServerError('Внутренняя ошибка сервера'));
       }
+      next(err);
     });
 };
 
