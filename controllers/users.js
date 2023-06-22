@@ -128,7 +128,7 @@ const login = (req, res, next) => {
     .catch((err) => {
       if (err.message === 'User not found') {
         next(new NotFoundError('Пользователь не найден'));
-      } else if (err === 'ValidationError') {
+      } else if (err.name === 'ValidationError') {
         next(new BadRequestError('Переданы некорректные данные'));
       }
       return next(new InternalServerError('Внутрення серверная ошибка'));
