@@ -34,8 +34,8 @@ const getUsersById = (req, res, next) => {
     })
     .catch((err) => {
       if (err.message === 'User not found') {
-        res.send((new NotFoundError('ПОЛЬЗОВАТЕЛЬ НЕ НАЙДЕН')));
-      } else if (err.name === 'CastError') {
+        next(new NotFoundError('Пользователь не найден'));
+      } else if (err.name === 'ValidationError') {
         next(new BadRequestError('Переданы некорректные данные'));
       } else {
         next(new InternalServerError('Внутрення серверная ошибка'));
